@@ -2,8 +2,14 @@ FROM buildpack-deps
 MAINTAINER Kyle Smith <kbsmith@rmn.com>
 
 RUN  apt-get update -y \
-  && apt-get install --no-install-recommends -y -q curl python build-essential git ca-certificates procps autoconf bison ruby \
+  && apt-get install --no-install-recommends -y -q curl python build-essential git ca-certificates procps autoconf bison ruby locales \
   && rm -rf /var/lib/apt/lists/*
+
+## Make UTF-8 play nice with Compass Builds
+RUN  echo 'en_US UTF-8' >> /etc/locale.gen \
+  && locale-gen
+ENV LANG en_US.UTF-8
+
 
 ################################# Node Install #################################
 ENV NODE_VERSION 0.10.33
@@ -31,7 +37,7 @@ RUN  mkdir -p /usr/src/ruby \
   && autoconf \
   && ./configure --disable-install-doc \
   && make -j"$(nproc)" \
-# && apt-get purge -y --auto-remove bison ruby \
+  && apt-get purge -y --auto-remove bison ruby \
   && make install \
   && rm -r /usr/src/ruby
 
